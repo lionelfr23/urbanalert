@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distrito de Calapuja - Reportes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">     
+        <h1 class="title">Distrito de Calapuja - Reportes</h1>
+        <div class="buttons">
+            <button id="btn-ayuda">Ayuda</button>
+            <button id="btn-reportar">Reporta Aquí</button>
+            <button id="btn-ver-reportes">Ver Reportes</button>
+        </div>
+    </div>
+    <footer>Creado por Lionel Edersson Aragos Illanes</footer>
+
+    <!-- Modales -->
+    <div id="modal-ayuda" class="modal hidden">
+        <div class="modal-content">
+            <p class="emoji">🚨</p>
+            <p>enviado</p>
+        </div>
+    </div>
+
+    <div id="modal-reportar" class="modal hidden">
+        <div class="modal-content">
+            <form id="form-reportar" method="POST" action="procesar_reporte.php" enctype="multipart/form-data">
+                <h2>Formulario de Reporte</h2>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+
+                <label for="dni">DNI:</label>
+                <input type="number" id="dni" name="dni" placeholder="Tu DNI" required>
+
+                <label for="direccion">Dirección:</label>
+                <input type="text" id="direccion" name="direccion" placeholder="Dirección del problema" required>
+
+                <label for="descripcion">Descripción del problema:</label>
+                <textarea id="descripcion" name="descripcion" placeholder="Describe el problema" required></textarea>
+
+                <label for="foto">Subir foto:</label>
+                <input type="file" id="foto" name="foto" accept="image/*" required>
+
+                <!-- Campos ocultos para la ubicación -->
+                <input type="hidden" id="lat" name="lat">
+                <input type="hidden" id="long" name="long">
+
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-ver-reportes" class="modal hidden">
+        <div class="modal-content">
+            <button id="btn-cerrar-reportes" class="close-button">Cerrar</button>
+            <h2>Mis Reportes</h2>
+            <ul id="lista-reportes"></ul>
+        </div>
+    </div>
+
+    <div id="modal-exito" class="modal hidden">
+        <div class="modal-content success">
+            <p>✅ Reporte enviado con éxito</p>
+        </div>
+    </div>
+
+    <script>
+        // Obtener la geolocalización del usuario
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById('lat').value = position.coords.latitude;
+                document.getElementById('long').value = position.coords.longitude;
+            });
+        } else {
+            alert("La geolocalización no está disponible en este navegador.");
+        }
+
+        // Mostrar los modales
+        document.getElementById('btn-ayuda').onclick = function() {
+            document.getElementById('modal-ayuda').classList.remove('hidden');
+        }
+
+        document.getElementById('btn-reportar').onclick = function() {
+            document.getElementById('modal-reportar').classList.remove('hidden');
+        }
+
+        document.getElementById('btn-ver-reportes').onclick = function() {
+            document.getElementById('modal-ver-reportes').classList.remove('hidden');
+            // Aquí podrías añadir código para cargar los reportes guardados desde PHP
+        }
+
+        // Cerrar el modal de ver reportes
+        document.getElementById('btn-cerrar-reportes').onclick = function() {
+            document.getElementById('modal-ver-reportes').classList.add('hidden');
+        }
+
+        // Manejo del éxito al enviar el reporte
+        document.getElementById('form-reportar').onsubmit = function(e) {
+            e.preventDefault();
+            var form = this;
+
+            // Aquí podrías enviar el formulario utilizando AJAX para evitar recargar la página
+            var formData = new FormData(form);
+
+            fetch('procesar_reporte.php', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.text())
+            .then(data => {
+                document.getElementById('modal-reportar').classList.add('hidden');
+                document.getElementById('modal-exito').classList.remove('hidden');
+            }).catch(error => console.error('Error:', error));
+        };
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
